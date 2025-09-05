@@ -1,114 +1,51 @@
-<h1>↗️ Privilege Escalation</h1>
+# Linux Privilege Escalation (TryHackMe)
 
-<h2>Description</h2>
-This project focuses on simulating attacker techniques in Linux environments to identify misconfigurations, escalate user privileges, and apply remediation strategies for hardening systems.<br />
-
-
-<h2>Skills Learned</h2>
-
-- <b>User and system enumeration techniques</b> 
-- <b>Exploiting SUID/SGID binaries</b>
-- <b>Leveraging misconfigured services and cron jobs</b>
-- <b>Identifying and exploiting weak file permissions</b>
-- <b>Password hunting and reuse detection</b>
-- <b>Escalation via kernel exploits</b>
-- <b>Applying least privilege principles and mitigation strategies</b>
-
-<h2>Tools Used </h2>
-
-- **Enumeration Tools:** `linPEAS`, `LinEnum`
-- **Core Linux Utilities:** `sudo`, `find`, `cat`, `less`, `grep`, `strings`
-- **File & Permission Tools:** `chmod`, `chown`, `ls -la`
-- **Process & Network Tools:** `ps`, `netstat`, `lsof`
-- **Archive & Binary Tools:** `tar`, `vim`, `nano`, `bash`
-- **Exploit Execution:** Kernel exploit scripts (public PoCs)
-- **Password Discovery:** Reviewing `history`, `.bashrc`, `/etc/shadow`, `/etc/passwd`
-
-<h2>Project Walk-Through:</h2>
-
-<p align="center">
-Some Examples Commands for Enumeration: <br/>
- 
- <br> Commands: `hostname` & `uname -a` </br>
-<img src="https://i.imgur.com/WSJX1l3.png" height="80%" width="80%" alt="Enumeration Commands"/>
-
-<br> Command: `env` </br>
-<img src="https://i.imgur.com/nbDFTg5.png" height="80%" width="80%" alt="Enumeration Commands"/>
-
-<br> Command: `ls -la` <br/>
- <img src="https://i.imgur.com/vIUFW5p.png" height="80%" width="80%" alt="Enumeration Commands"/>
-
-<br> Command: `id` & `ip route` <br/>
- <img src="https://i.imgur.com/58AOD1t.png" height="80%" width="80%" alt="Enumeration Commands"/>
-
-<br> Command: `netstat -s` <br/>
- <img src="https://i.imgur.com/AYqDzOo.png" height="80%" width="80%" alt="Enumeration Commands"/>
-
-<br> The `find` command can also be used to seach the target system for more specific/important information and potential privilege escalation vectors. </br> 
-<br />
-<br />
-
-
-
-## 🔍 Findings
-
-
-The command `uname -a` was ultimately used to find a CVE vulnerability that would affect the kernel of the target system:  <br/>
-<img src="https://i.imgur.com/WSJX1l3.png" height="80%" width="80%" alt="Enumeration Commands"/>
-<br />
-<br />
-
-## 🧠 Key Skills Demonstrated
-- Kernel & OS enumeration (`uname`, `lsb_release`, `/etc/*release`)
-- Threat research via CVE/Exploit-DB
-- **Offline** file transfer (Python HTTP server → `wget` on target)
-- Safe screenshotting (redacting IPs/flags/user identifiers)
-- Clear documentation of tactics/why they matter
+## 🎯 Objective
+Identify misconfigurations and vulnerabilities on a Linux target machine and escalate privileges to root.
 
 ---
 
-## 🛠️ Environment (Lab)
-- **Room:** TryHackMe — *Linux Privilege Escalation*
-- **Target:** Ubuntu (`3.13.0-24-generic`)
-- **CVE:** `CVE-2015-1328` (OverlayFS Local Privilege Escalation)
-- **Exploit-DB Ref:** 37292
+## 🔍 Enumeration
+- Used basic commands (`uname -r`, `lsb_release -a`, `cat /etc/issue`) to gather OS and kernel information.  
+- Collected environment variables with `env` to look for potential sensitive data.  
+- Listed files and permissions with `ls -la` to detect hidden files and unusual permission settings.  
+- Mapped network routes with `ip route` to understand the target’s connectivity.  
 
-> ⚠️ *All screenshots are from an isolated training environment. Any sensitive items (flags, public IPs, unique usernames) are redacted.*
+**Finding:**  
+The kernel version was **3.13.0-24-generic**, which is known to be vulnerable to a kernel-level privilege escalation (OverlayFS bug).
 
 ---
 
-## 🔍 Enumeration Highlights
+## 🧭 Vulnerability Research
+- Matched the kernel version to **CVE-2015-1328 (OverlayFS Local Privilege Escalation)**.  
+- Verified exploit availability using Exploit-DB (reference: exploit 37292).  
 
-<table>
-<tr>
-<td width="50%">
+---
 
-**Kernel version**
+## 🔄 Exploit Transfer
+- Since the target system had no internet access, I prepared the exploit on my attack machine.  
+- Hosted the file using Python’s HTTP server and pulled it to the target with `wget`.  
 
-  ```md
-<table>
-<tr>
-<td width="50%">
+---
 
-**Kernel version**
+## ⚙️ Exploitation
+- Compiled the downloaded exploit with `gcc`.  
+- Executed the binary, which successfully leveraged the OverlayFS vulnerability.  
 
-<pre><code>uname -r
-3.13.0-24-generic
-</code></pre>
+**Result:** Escalated privileges from a normal user to **root**.
 
-<img src="./assets/linux-pe/uname-r.png" alt="uname -r output" />
+---
 
-</td>
-<td width="50%">
+## ✅ Outcome
+- Demonstrated Linux privilege escalation through kernel exploitation.  
+- Practiced working with offline environments (transferring files without internet).  
+- Reinforced the importance of patching outdated kernels to mitigate security risks.  
 
-**Environment variables**
+---
 
-<pre><code>env | sort
-# (redact tokens/secrets if present)
-</code></pre>
-
-<img src="./assets/linux-pe/env.png" alt="env output" />
-
-</td>
-</tr>
-</table>
+## 🧩 Key Skills Demonstrated
+- Linux enumeration techniques  
+- CVE research and mapping  
+- Offline file transfer methods (`python3 -m http.server` + `wget`)  
+- Exploit compilation and execution  
+- Professional documentation of security testing process
